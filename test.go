@@ -64,7 +64,7 @@ func findPhoneById(c *gin.Context) {
 	return
 }
 
-// обрабатывает запросы в бд
+// берет данные из бд
 func takeFromDB(SQL_query string) []phone {
 
 	connStr := "user=postgres port=5433 password=q dbname=go sslmode=disable"
@@ -94,6 +94,7 @@ func takeFromDB(SQL_query string) []phone {
 	return phones
 }
 
+// записывает данные в бд
 func writeToDB(newphone phone) {
 
 	connStr := "user=postgres port=5433 password=q dbname=go sslmode=disable"
