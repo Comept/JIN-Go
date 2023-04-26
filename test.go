@@ -20,41 +20,43 @@ type phone struct {
 
 func main() {
 	router := gin.Default()
-	router.GET("/albums", getPhone)
-	router.GET("/albums/:id", findPhoneByCompany)
-	router.POST("/albums", postPhone)
+	router.GET("/phones", getPhone)
+	router.GET("/phones/:id", findPhoneById)
+	router.POST("/phones", postPhone)
 
 	router.Run("localhost:8080")
 }
 
 // обрабатывает get запрос для получения списка всех телефонов в бд
 func getPhone(c *gin.Context) {
-	var phones []phone = dbQuere("select * from phones")
+	var phones []phone = takeFromDB("select * from phones")
 	fmt.Println(phones)
 	c.JSON(http.StatusOK, phones)
 }
 
 // обрабатывает post запрос для записи новой модели телефона в бд
 func postPhone(c *gin.Context) {
+	fmt.Print("213")
 	var newphone phone
-
+	fmt.Print("juugugug")
 	if err := c.BindJSON(&newphone); err != nil {
+		fmt.Print("213")
 		return
 	}
-	query := fmt.Sprintf("insert into Phones (Model, Company, Price) values (%s, %s, %d)", newphone.Model, newphone.Company, newphone.Price)
-	dbQuere(query)
-	// Add the new album to the slice.
+	fmt.Print(newphone.Company)
+
+	writeToDB(newphone)
 }
 
 // ищет модель телефона по id
-func findPhoneByCompany(c *gin.Context) {
+func findPhoneById(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		// ... handle error
 		panic(err)
 	}
 	query := fmt.Sprintf("select * from Phones WHERE id = %d", id)
-	var xj []phone = dbQuere(query)
+	var xj []phone = takeFromDB(query)
 
 	fmt.Println(xj)
 
@@ -63,7 +65,7 @@ func findPhoneByCompany(c *gin.Context) {
 }
 
 // обрабатывает запросы в бд
-func dbQuere(SQL_query string) []phone {
+func takeFromDB(SQL_query string) []phone {
 
 	connStr := "user=postgres port=5433 password=q dbname=go sslmode=disable"
 	db, err := sql.Open("postgres", connStr)
@@ -90,4 +92,23 @@ func dbQuere(SQL_query string) []phone {
 	}
 	fmt.Println(phones)
 	return phones
+}
+
+func writeToDB(newphone phone) {
+
+	connStr := "user=postgres port=5433 password=q dbname=go sslmode=disable"
+	db, err := sql.Open("postgres", connStr)
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
+
+	result, err := db.Exec("insert into Phones (Model, Company, Price) values ($1, $2, $3)",
+		newphone.Model, newphone.Company, newphone.Price)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(result.RowsAffected()) // количество добавленных строк
+
+	return
 }

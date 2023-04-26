@@ -1,0 +1,12 @@
+curl http://localhost:8080/phones \
+    --include \
+    --header "Content-Type: application/json" \
+    --request "POST" \
+    --data '{"Model": " Galaxy S23 256GB","company": "Samsung","price": 78999}'
+###
+ curl http://localhost:8080/phones \
+    --header "Content-Type: application/json" \
+    --request "GET"
+    --data '{"id": "1"}'
+###
+ curl http://localhost:8080/phones/1
