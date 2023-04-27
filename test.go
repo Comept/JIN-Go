@@ -27,6 +27,7 @@ func main() {
 		Password: "q",
 		Database: "go",
 	})
+	defer db.Close()
 	router := gin.Default()
 	router.GET("/phones", getPhone)
 	router.GET("/phones/:id", findPhoneById)
@@ -52,7 +53,6 @@ func postPhone(c *gin.Context) {
 	if err := c.BindJSON(&newphone); err != nil {
 		return
 	}
-	fmt.Printf(newphone.Model)
 	_, err := db.Model(&newphone).Insert()
 	if err != nil {
 		panic(err)
