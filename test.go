@@ -29,7 +29,6 @@ func main() {
 	router.GET("/phones", getPhone)
 	router.GET("/phones/:id", findPhoneById)
 	router.POST("/phones", postPhone)
-
 	router.Run(servAddr)
 }
 
