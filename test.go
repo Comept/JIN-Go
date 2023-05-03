@@ -3,12 +3,12 @@ package main
 import (
 	"fmt"
 	"net/http"
-
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-pg/pg/v10"
 	"github.com/go-pg/pg/v10/orm"
+	"github.com/spf13/viper"
 )
 
 type Phone struct {
@@ -19,21 +19,38 @@ type Phone struct {
 }
 
 var db *pg.DB
+var servAddr string
 
 func main() {
-	db = pg.Connect(&pg.Options{
-		Addr:     ":5433",
-		User:     "postgres",
-		Password: "q",
-		Database: "go",
-	})
+	initt()
 	defer db.Close()
 	router := gin.Default()
+	fmt.Print(servAddr)
 	router.GET("/phones", getPhone)
 	router.GET("/phones/:id", findPhoneById)
 	router.POST("/phones", postPhone)
 
-	router.Run("localhost:8080")
+	router.Run(servAddr)
+}
+
+// инициализация
+func initt() {
+	conf := viper.New()
+	conf.SetConfigName("conf")
+	conf.SetConfigType("env")
+	conf.AddConfigPath("./util")
+	err := conf.ReadInConfig()
+	if err != nil {
+		panic(err)
+	}
+	db = pg.Connect(&pg.Options{
+		Addr:     conf.GetString("DBADDR"),
+		User:     conf.GetString("DBUSER"),
+		Password: conf.GetString("DBPASSWORD"),
+		Database: conf.GetString("DB"),
+	})
+	servAddr = conf.GetString("SERVADDR")
+	return
 }
 
 // обрабатывает get запрос для получения списка всех телефонов в бд
